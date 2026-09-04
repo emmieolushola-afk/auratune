@@ -114,18 +114,20 @@ export default function AudioMotionEffect() {
       const cx = w / 2;
       const cy = h / 2;
       const maxBreathR = Math.max(w, h) * 0.6;
-      const breathGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxBreathR);
-      breathGrad.addColorStop(
-        0,
-        `rgba(${accentRgb.r}, ${accentRgb.g}, ${accentRgb.b}, ${breathAlpha * 1.5})`
-      );
-      breathGrad.addColorStop(
-        0.5,
-        `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, ${breathAlpha * 0.6})`
-      );
-      breathGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
-      ctx.fillStyle = breathGrad;
-      ctx.fillRect(0, 0, w, h);
+      if (maxBreathR > 0 && Number.isFinite(maxBreathR)) {
+        const breathGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxBreathR);
+        breathGrad.addColorStop(
+          0,
+          `rgba(${accentRgb.r}, ${accentRgb.g}, ${accentRgb.b}, ${breathAlpha * 1.5})`
+        );
+        breathGrad.addColorStop(
+          0.5,
+          `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, ${breathAlpha * 0.6})`
+        );
+        breathGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+        ctx.fillStyle = breathGrad;
+        ctx.fillRect(0, 0, w, h);
+      }
 
       if (isPlaying && bass > BASS_THRESHOLD && Date.now() - lastBassSpike.current > 350) {
         lastBassSpike.current = Date.now();
@@ -232,6 +234,7 @@ export default function AudioMotionEffect() {
         if (p.alpha < 0.005) continue;
 
         const glowSize = p.radius * (2 + bass * 3);
+        if (!Number.isFinite(glowSize) || glowSize <= 0) continue;
         const glowGrad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowSize);
         glowGrad.addColorStop(
           0,
